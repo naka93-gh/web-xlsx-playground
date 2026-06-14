@@ -3,6 +3,7 @@ import type { Row } from "web-xlsx";
 import { build } from "web-xlsx/write";
 import { Table } from "../../components/Table";
 import { download, XLSX_MIME } from "../../lib/download";
+import { fileErrorMessage } from "../../lib/fileError";
 
 const SAMPLE_JSON = `[
   { "name": "山田太郎", "age": 30, "active": true },
@@ -42,10 +43,14 @@ export function JsonToXlsx() {
     }
 
     try {
-      // build は成功時に xlsx のバイト列を返し、失敗時は例外を投げる
-      const bytes = await build(data as Row[], { options: { sheetName: sheetName || "Sheet1", utc: true } });
+      // build は read と対称の Result 型を返す（成功: { ok: true, data } / 失敗: { ok: false, error }）
+      const result = await build(data as Row[], { options: { sheetName: sheetName || "Sheet1", utc: true } });
+      if (!result.ok) {
+        setError(fileErrorMessage(result.error.code));
+        return;
+      }
       setRows(data as Record<string, unknown>[]);
-      download(bytes, `${sheetName || "data"}.xlsx`, XLSX_MIME);
+      download(result.data, `${sheetName || "data"}.xlsx`, XLSX_MIME);
     } catch (e) {
       setError(`生成に失敗しました: ${(e as Error).message}`);
     } finally {

@@ -2,3 +2,4 @@ allowBuilds:
   esbuild: true
 minimumReleaseAgeExclude:
   - web-xlsx@0.3.1
+  - web-xlsx@0.4.0
