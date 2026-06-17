@@ -15,8 +15,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1(react@18.3.1)
       web-xlsx:
-        specifier: ^0.4.0
-        version: 0.4.0
+        specifier: ^1.0.0
+        version: 1.0.0
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.4.4
@@ -989,8 +989,8 @@ packages:
       yaml:
         optional: true
 
-  web-xlsx@0.4.0:
-    resolution: {integrity: sha512-vAPZlKDlg3x+qWYx9Lxa4Omk50CIeKA6IvHQfVfIBBTOiraiqCzyCtcz99tCPID0yU/Khmr6vQQZmPpPRLuI5A==}
+  web-xlsx@1.0.0:
+    resolution: {integrity: sha512-A371V2vDvComwxSJrTVgiuTbQ3k5gAzwHw4ElEY3Vgv2DDD5MKV5ufZD6J6F6xmwZ6UAS83E3fj5boaatDYkGA==}
     engines: {node: '>=22.0.0'}
 
   yallist@3.1.1:
@@ -1793,6 +1793,6 @@ snapshots:
       fsevents: 2.3.3
       jiti: 1.21.7
 
-  web-xlsx@0.4.0: {}
+  web-xlsx@1.0.0: {}
 
   yallist@3.1.1: {}
