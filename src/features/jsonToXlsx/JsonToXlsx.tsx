@@ -1,117 +1,120 @@
-import { useState } from "react";
-import type { Row } from "web-xlsx";
-import { build } from "web-xlsx/write";
+import { type ReactElement, useMemo, useState } from "react";
+import { Button } from "../../components/Button";
+import { ErrorNotice } from "../../components/ErrorNotice";
 import { Table } from "../../components/Table";
+import { TextField } from "../../components/TextField";
 import { download, XLSX_MIME } from "../../lib/download";
-import { fileErrorMessage } from "../../lib/fileError";
+import { errorMessage } from "../../lib/errorMessage";
+import { parseJsonRows, toSheetRows } from "../../lib/jsonRows";
+import { SAMPLE_JSON } from "../../lib/sample";
+import { DEFAULT_SHEET_NAME, writeXlsx } from "../../lib/xlsx";
+import { SchemaEditor } from "../schema/SchemaEditor";
+import type { SchemaInput } from "../schema/useSchemaInput";
 
-const SAMPLE_JSON = `[
-  { "name": "山田太郎", "age": 30, "active": true },
-  { "name": "佐藤花子", "age": 25, "active": false }
-]`;
-
-export function JsonToXlsx() {
+/**
+ * JSON → xlsx タブ
+ *
+ * @param props - 両タブで共有するスキーマの入力状態
+ * @returns タブの中身
+ */
+export function JsonToXlsx({ schemaInput }: { schemaInput: SchemaInput }): ReactElement {
   const [jsonText, setJsonText] = useState(SAMPLE_JSON);
-  const [sheetName, setSheetName] = useState("Sheet1");
-  const [rows, setRows] = useState<Record<string, unknown>[]>([]);
-  const [error, setError] = useState("");
+  const [sheetName, setSheetName] = useState("");
+  const [actionError, setActionError] = useState("");
   const [busy, setBusy] = useState(false);
 
-  function loadFile(file: File) {
-    const reader = new FileReader();
-    reader.onload = () => setJsonText(String(reader.result ?? ""));
-    reader.readAsText(file);
-  }
+  const { schema, error: schemaError } = schemaInput;
+  const parsed = useMemo(() => (schemaError ? null : parseJsonRows(jsonText, schema)), [jsonText, schema, schemaError]);
+  const sheetRows = useMemo(() => (parsed?.ok ? toSheetRows(parsed.rows, schema) : []), [parsed, schema]);
 
-  async function handleBuild() {
+  /**
+   * 入力中の行を xlsx にしてダウンロードさせる
+   */
+  async function handleDownload(): Promise<void> {
+    if (!parsed?.ok) return;
     setBusy(true);
-    setError("");
-    setRows([]);
-
-    let data: unknown;
+    setActionError("");
+    const name = sheetName.trim() || DEFAULT_SHEET_NAME;
     try {
-      data = JSON.parse(jsonText);
+      const result = await writeXlsx(parsed.rows, name, schema);
+      if (result.ok) download(result.data, `${name}.xlsx`, XLSX_MIME);
+      else setActionError(result.error);
     } catch (e) {
-      setError(`JSON として読めません: ${(e as Error).message}`);
-      setBusy(false);
-      return;
-    }
-    if (!Array.isArray(data)) {
-      setError("オブジェクトの配列（例: [{...}, {...}]）で入力してください。");
-      setBusy(false);
-      return;
-    }
-
-    try {
-      // build は read と対称の Result 型を返す（成功: { ok: true, data } / 失敗: { ok: false, error }）
-      const result = await build(data as Row[], { options: { sheetName: sheetName || "Sheet1", utc: true } });
-      if (!result.ok) {
-        setError(fileErrorMessage(result.error.code));
-        return;
-      }
-      setRows(data as Record<string, unknown>[]);
-      download(result.data, `${sheetName || "data"}.xlsx`, XLSX_MIME);
-    } catch (e) {
-      setError(`生成に失敗しました: ${(e as Error).message}`);
+      setActionError(`生成に失敗しました: ${errorMessage(e)}`);
     } finally {
       setBusy(false);
     }
   }
 
+  /**
+   * JSON ファイルの中身を入力欄に読み込む
+   *
+   * @param file - 選ばれた JSON ファイル
+   */
+  async function loadJsonFile(file: File): Promise<void> {
+    try {
+      setJsonText(await file.text());
+      setActionError("");
+    } catch (e) {
+      setActionError(`ファイルを読めません: ${errorMessage(e)}`);
+    }
+  }
+
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <section className="flex flex-col gap-3">
-        <label className="text-sm text-slate-600">
-          シート名
-          <input
-            value={sheetName}
-            onChange={(e) => setSheetName(e.target.value)}
-            className="mt-1 w-full rounded border border-slate-300 px-2 py-1"
-          />
-        </label>
-
+      <section className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-slate-600">JSON（オブジェクトの配列）</span>
+          <JsonFileButton onFile={loadJsonFile} />
+        </div>
         <textarea
           value={jsonText}
           onChange={(e) => setJsonText(e.target.value)}
           spellCheck={false}
+          aria-label="JSON"
           className="h-72 w-full rounded border border-slate-300 p-2 font-mono text-xs"
         />
-
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={handleBuild}
-            disabled={busy}
-            className="rounded bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {busy ? "生成中…" : ".xlsx を生成してDL"}
-          </button>
-          <label className="cursor-pointer text-xs text-slate-500 underline">
-            .json を読み込む
-            <input
-              type="file"
-              accept=".json,application/json"
-              className="hidden"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) loadFile(f);
-                e.target.value = "";
-              }}
-            />
-          </label>
-        </div>
-
-        {error && <p className="rounded bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>}
+        <ErrorNotice messages={parsed && !parsed.ok ? parsed.errors : []} />
+        <SchemaEditor input={schemaInput} />
       </section>
 
       <section className="flex flex-col gap-3">
-        {rows.length > 0 && (
-          <>
-            <h3 className="text-sm font-semibold text-slate-700">プレビュー（キー = ヘッダー）</h3>
-            <Table rows={rows} />
-          </>
-        )}
+        <div className="flex items-end gap-2">
+          <div className="flex-1">
+            <TextField label="シート名" value={sheetName} onChange={setSheetName} placeholder={DEFAULT_SHEET_NAME} />
+          </div>
+          <Button variant="primary" onClick={handleDownload} disabled={busy || !parsed?.ok}>
+            {busy ? "生成中…" : ".xlsx をDL"}
+          </Button>
+        </div>
+        <ErrorNotice messages={actionError ? [actionError] : []} />
+        <h3 className="text-sm font-semibold text-slate-700">プレビュー（{sheetRows.length} 行）</h3>
+        <Table rows={sheetRows} />
       </section>
     </div>
+  );
+}
+
+/**
+ * JSON ファイルを選ぶリンク風のボタン
+ *
+ * @param props - ファイルを受け取るコールバック
+ * @returns ボタン
+ */
+function JsonFileButton({ onFile }: { onFile: (file: File) => void }): ReactElement {
+  return (
+    <label className="cursor-pointer text-xs text-slate-500 underline focus-within:ring-2 focus-within:ring-indigo-500">
+      .json を読み込む
+      <input
+        type="file"
+        accept=".json,application/json"
+        className="sr-only"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) onFile(file);
+          e.target.value = "";
+        }}
+      />
+    </label>
   );
 }

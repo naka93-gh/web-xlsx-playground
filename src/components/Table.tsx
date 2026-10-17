@@ -1,5 +1,11 @@
-// 任意のオブジェクト配列を表でプレビューする（最大 max 行）
-export function Table({ rows, max = 50 }: { rows: Record<string, unknown>[]; max?: number }) {
+import type { ReactElement } from "react";
+/**
+ * 任意のオブジェクト配列を表でプレビューする
+ *
+ * @param props - 表示する行と最大表示行数
+ * @returns 表
+ */
+export function Table({ rows, max = 50 }: { rows: Record<string, unknown>[]; max?: number }): ReactElement {
   if (rows.length === 0) {
     return <p className="text-sm text-slate-400">データがありません。</p>;
   }
@@ -40,6 +46,12 @@ export function Table({ rows, max = 50 }: { rows: Record<string, unknown>[]; max
   );
 }
 
+/**
+ * セルの値を表示用の文字列にする
+ *
+ * @param value - 行のプロパティ値
+ * @returns 表示用の文字列
+ */
 function formatCell(value: unknown): string {
   if (value === null || value === undefined) return "";
   if (value instanceof Date) return value.toISOString();

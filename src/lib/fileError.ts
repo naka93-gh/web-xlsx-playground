@@ -14,6 +14,12 @@ const MESSAGES: Record<FileErrorCode, string> = {
   "read-failed": "ファイルの読み込みに失敗しました。",
 };
 
+/**
+ * ファイル単位のエラーコードを日本語のメッセージにする
+ *
+ * @param code - web-xlsx の FileError のコード
+ * @returns 表示用のメッセージ
+ */
 export function fileErrorMessage(code: FileErrorCode): string {
   return MESSAGES[code] ?? "不明なエラーが発生しました。";
 }
