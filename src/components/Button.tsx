@@ -17,7 +17,7 @@ export function Button({ variant = "secondary", className = "", ...props }: Prop
   return (
     <button
       type="button"
-      className={`rounded px-3 py-1.5 text-xs font-medium disabled:opacity-50 ${VARIANTS[variant]} ${className}`}
+      className={`rounded-sm px-3 py-1.5 text-xs font-medium disabled:opacity-50 ${VARIANTS[variant]} ${className}`}
       {...props}
     />
   );

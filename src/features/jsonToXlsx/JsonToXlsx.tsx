@@ -72,7 +72,7 @@ export function JsonToXlsx({ schemaInput }: { schemaInput: SchemaInput }): React
           onChange={(e) => setJsonText(e.target.value)}
           spellCheck={false}
           aria-label="JSON"
-          className="h-72 w-full rounded border border-slate-300 p-2 font-mono text-xs"
+          className="h-72 w-full rounded-sm border border-slate-300 p-2 font-mono text-xs"
         />
         <ErrorNotice messages={parsed && !parsed.ok ? parsed.errors : []} />
         <SchemaEditor input={schemaInput} />

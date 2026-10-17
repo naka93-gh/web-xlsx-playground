@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
@@ -13,7 +14,7 @@ const webXlsxVersion: string = JSON.parse(readFileSync(pkgPath, "utf8")).version
 // GitHub Pages 配信用の base。リポジトリ名に合わせる（独自ドメイン/ルート配信なら "/"）
 export default defineConfig({
   base: "/web-xlsx-playground/",
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   define: {
     __WEBXLSX_VERSION__: JSON.stringify(webXlsxVersion),
   },

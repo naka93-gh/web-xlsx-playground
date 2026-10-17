@@ -23,7 +23,7 @@ export function ParseOptionsForm({
           <select
             value={form.sheetBy}
             onChange={(e) => onChange({ ...form, sheetBy: e.target.value as ParseForm["sheetBy"] })}
-            className="mt-1 block rounded border border-slate-300 px-1 py-1"
+            className="mt-1 block rounded-sm border border-slate-300 px-1 py-1"
           >
             <option value="index">番号</option>
             <option value="name">名前</option>

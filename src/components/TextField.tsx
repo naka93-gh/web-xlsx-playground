@@ -21,7 +21,7 @@ export function TextField({ label, value, onChange, placeholder }: Props): React
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="mt-1 w-full rounded border border-slate-300 px-2 py-1"
+        className="mt-1 w-full rounded-sm border border-slate-300 px-2 py-1"
       />
     </label>
   );

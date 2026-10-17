@@ -22,7 +22,7 @@ export function SchemaEditor({ input }: { input: SchemaInput }): ReactElement {
             onChange={(e) => input.setText(e.target.value)}
             spellCheck={false}
             aria-label="スキーマ"
-            className="h-44 w-full rounded border border-slate-300 p-2 font-mono text-xs"
+            className="h-44 w-full rounded-sm border border-slate-300 p-2 font-mono text-xs"
           />
           <p className="text-xs text-slate-400">
             ヘッダー名 → {"{ prop, type, required?, defaultValue? }"}。type は string / number / boolean / date

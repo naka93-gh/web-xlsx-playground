@@ -8,7 +8,7 @@ import type { ReactElement } from "react";
 export function ErrorNotice({ messages }: { messages: string[] }): ReactElement | null {
   if (messages.length === 0) return null;
   return (
-    <ul className="space-y-1 rounded bg-red-50 px-3 py-2 text-sm text-red-600">
+    <ul className="space-y-1 rounded-sm bg-red-50 px-3 py-2 text-sm text-red-600">
       {messages.map((m, i) => (
         <li key={i}>{m}</li>
       ))}

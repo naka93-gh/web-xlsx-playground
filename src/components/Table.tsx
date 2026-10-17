@@ -14,7 +14,7 @@ export function Table({ rows, max = 50 }: { rows: Record<string, unknown>[]; max
   const shown = rows.slice(0, max);
 
   return (
-    <div className="overflow-auto rounded border border-slate-200">
+    <div className="overflow-auto rounded-sm border border-slate-200">
       <table className="w-full border-collapse text-sm">
         <thead className="bg-slate-100">
           <tr>

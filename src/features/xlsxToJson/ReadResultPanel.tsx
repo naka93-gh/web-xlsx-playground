@@ -55,7 +55,7 @@ export function ReadResultPanel({ result, loading, fileName, pretty, onPrettyCha
       </div>
       <RowErrorList errors={result.errors} />
       <Table rows={result.rows} />
-      <pre className="max-h-80 overflow-auto rounded bg-slate-900 p-3 text-xs text-slate-100">{json}</pre>
+      <pre className="max-h-80 overflow-auto rounded-sm bg-slate-900 p-3 text-xs text-slate-100">{json}</pre>
     </div>
   );
 }
@@ -69,7 +69,7 @@ export function ReadResultPanel({ result, loading, fileName, pretty, onPrettyCha
 function RowErrorList({ errors }: { errors: RowError[] }): ReactElement | null {
   if (errors.length === 0) return null;
   return (
-    <details className="rounded bg-amber-50 px-3 py-2 text-sm text-amber-700">
+    <details className="rounded-sm bg-amber-50 px-3 py-2 text-sm text-amber-700">
       <summary className="cursor-pointer font-medium">
         検証エラー {errors.length} 件（エラーのある行は出力から除外）
       </summary>
